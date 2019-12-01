@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+SCRIPT=`realpath "$0"`
+SCRIPTPATH=`dirname "$SCRIPT"`
+REPOPATH=`realpath "$SCRIPTPATH/.."`
+TESTDB="firstlast-pg_test"
+EXITCODE=0
+
+psql -c "DROP DATABASE IF EXISTS \"$TESTDB\";" > /dev/null 2> /dev/null
+psql -c "CREATE DATABASE \"$TESTDB\";" > /dev/null
+
+for MIGRATION in $REPOPATH/src/*; do
+    if [ -d "$MIGRATION" ]; then
+        MIGRATIONNAME=`basename "$MIGRATION"`
+
+        echo -n "up $MIGRATIONNAME... "
+
+        if psql "$TESTDB" < "$MIGRATION/up.sql" > /dev/null
+        then
+            echo "OKAY"
+        else
+            echo "FAILED"
+            EXITCODE=1
+        fi
+    fi
+done
+
+for TEST in $REPOPATH/test/*; do
+    if [ -d "$TEST" ]; then
+        TESTNAME=`basename "$TEST"`
+
+        echo -n "test $TESTNAME... "
+
+        psql "$TESTDB" < "$TEST/stdin.sql" > stdout.tmp 2> stderr.tmp
+
+        if  cmp --silent "$TEST/stdout.txt" stdout.tmp &&
+            cmp --silent "$TEST/stderr.txt" stderr.tmp
+        then
+            echo "PASS"
+        else
+            echo "FAIL"
+            EXITCODE=1
+        fi
+    fi
+done
+
+for MIGRATION in $REPOPATH/src/*; do
+    if [ -d "$MIGRATION" ]; then
+        MIGRATIONNAME=`basename "$MIGRATION"`
+
+        echo -n "down $MIGRATIONNAME... "
+
+        if psql "$TESTDB" < "$MIGRATION/down.sql" > /dev/null
+        then
+            echo "OKAY"
+        else
+            echo "FAILED"
+            EXITCODE=1
+        fi
+    fi
+done
+
+psql -c "DROP DATABASE IF EXISTS \"$TESTDB\";" > /dev/null
+rm -f stdout.tmp stderr.tmp
+exit "$EXITCODE"

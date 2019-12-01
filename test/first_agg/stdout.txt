@@ -1,0 +1,10 @@
+BEGIN
+CREATE TABLE
+INSERT 0 4
+ owner_name | youngest_dog_name 
+------------+-------------------
+ Jane       | Tibbles
+ John       | Fido
+(2 rows)
+
+ROLLBACK

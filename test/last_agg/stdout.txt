@@ -1,0 +1,10 @@
+BEGIN
+CREATE TABLE
+INSERT 0 4
+ owner_name | oldest_dog_name 
+------------+-----------------
+ Jane       | Fred
+ John       | Rex
+(2 rows)
+
+ROLLBACK
