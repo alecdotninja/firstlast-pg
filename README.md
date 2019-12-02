@@ -57,7 +57,7 @@ WINDOW owner_name_by_age AS (PARTITION BY owner_name ORDER BY age ASC)
 
 Again, this works, but I personally find it even more awkard (and much more difficult to follow) than the last example.
 
-Finally, with the `FIRST` and `LAST` aggregate functions defined in this repo:
+The `FIRST` and `LAST` aggregate functions defined here have the semantics I want while still allowing for multiple orderings with a single table scan:
 
 ```sql
 SELECT
