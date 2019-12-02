@@ -1,7 +1,7 @@
 # firstlast-pg
 [![Build Status](https://travis-ci.org/alecdotninja/firstlast-pg.svg?branch=master)](https://travis-ci.org/alecdotninja/firstlast-pg)
 
-This repo provides `FIRST` and `LAST` aggregate functions for [all recent versions of PostgreSQL](.travis.yml).
+This is an implementation of `FIRST` and `LAST` aggregate functions for [all recent versions of PostgreSQL](.travis.yml).
 
 ## Motivation / Usage
 
@@ -17,9 +17,9 @@ CREATE TABLE dogs (
 
 INSERT INTO dogs (owner_name, name, age) VALUES
     ('John', 'Fido', 3),
-    ('Jane', 'Fred', 5);
+    ('Jane', 'Fred', 5),
     ('John', 'Rex', 5),
-    ('Jane', 'Tibbles', 4),
+    ('Jane', 'Tibbles', 4);
 ```
 
 The built-in `DISTINCT ON` clause can be used to find the youngest and oldest dog name for each owner:
@@ -40,7 +40,7 @@ FROM dogs
 ORDER BY owner_name, age DESC;
 ```
 
-This works and is indeed [an intended usage of `DISTINCT ON`](), but I personally find this a bit awkward.
+This works and is indeed [an intended usage of `DISTINCT ON`](https://www.postgresql.org/docs/current/sql-select.html#SQL-DISTINCT), but I personally find this a bit awkward. In order to be well defined, the expressions from the `DISTINCT ON` clause need to appear at the beginning of the `ORDER BY` clause, and the meaning of the other values from the `SELECT` clause is determined by the end of the `ORDER BY` clause.
 It also has the major technical drawback of requiring two queries (and, more importantly, two table scans).
 
 It is possible to get both the oldest *and* the youngest in a single table scan with window functions:
@@ -52,21 +52,20 @@ SELECT
     FIRST_VALUE(name) OVER owner_name_by_age AS youngest_dog_name,
     LAST_VALUE(name)  OVER owner_name_by_age AS oldest_dog_name
 FROM dogs
-WINDOW owner_name_by_age AS (PARTITION BY owner_name ORDER BY age ASC)
+WINDOW owner_name_by_age AS (PARTITION BY owner_name ORDER BY age ASC);
 ```
 
-Again, this works, but I personally find it even more awkard (and much more difficult to follow) than the last example.
+Again, this works, but I personally find it even more awkard (and much more difficult to follow) than the last example. Now, in order to be well-defined, all of the partitions from the `WINDOW` must appear as values in the `SELECT DISTINCT` clause (but _cannot_ appear in a `DISTINCT ON`). Also, this has the conceptual overhead of remembering that we compute the value of the window functions for every row in the window then throw away the duplicates with `DISTINCT`.
 
-The `FIRST` and `LAST` aggregate functions defined here have the semantics I want while still allowing for multiple orderings with a single table scan:
+The `FIRST` and `LAST` aggregate functions defined here have the semantics I want (_particularly_ when combined with `ORDER BY` in aggregate form) while still allowing for multiple orderings with a single table scan:
 
 ```sql
 SELECT
     owner_name,
     FIRST(name ORDER BY age ASC) AS youngest_dog_name,
     LAST (name ORDER BY age ASC) AS oldest_dog_name
-FROM
-    dogs
-GROUP BY owner_name
+FROM dogs
+GROUP BY owner_name;
 ```
 
 ## Installation
