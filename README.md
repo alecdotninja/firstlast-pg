@@ -1,7 +1,9 @@
 # firstlast-pg
 [![Build Status](https://travis-ci.org/alecdotninja/firstlast-pg.svg?branch=master)](https://travis-ci.org/alecdotninja/firstlast-pg)
 
-This is an implementation of `FIRST` and `LAST` aggregate functions for [all recent versions of PostgreSQL](.travis.yml).
+This is an implementation of `FIRST` and `LAST` aggregate functions for all recent versions of PostgreSQL.
+
+[![Build Matrix](https://travis-matrix-badge.alec.ninja/badge-v1.svg?owner=alecdotninja&repo=firstlast-pg&branch=master)](https://travis-ci.org/alecdotninja/firstlast-pg)
 
 ## Motivation / Usage
 
