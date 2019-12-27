@@ -3,7 +3,7 @@
 
 This is an implementation of `FIRST` and `LAST` aggregate functions for all recent versions of PostgreSQL.
 
-[![Build Matrix](https://travis-matrix-badge.alec.ninja/badge-v1.svg?owner=alecdotninja&repo=firstlast-pg&branch=master)](https://travis-ci.org/alecdotninja/firstlast-pg)
+[![Build Matrix](https://travis-matrix-badge.alec.ninja/v1/alecdotninja/firstlast-pg/matrix.svg)](https://travis-ci.org/alecdotninja/firstlast-pg)
 
 ## Motivation / Usage
 
